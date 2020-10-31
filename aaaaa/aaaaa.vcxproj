@@ -128,9 +128,7 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
-    
     <PackageCertificateKeyFile>aaaaa_TemporaryKey.pfx</PackageCertificateKeyFile>
-    
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">
     <Link>
@@ -254,6 +252,7 @@
     <ClInclude Include="Common\StepTimer.h" />
     <ClInclude Include="Content\Sample3DSceneRenderer.h" />
     <ClInclude Include="Content\ShaderStructures.h" />
+    <ClInclude Include="Cube.h" />
     <ClInclude Include="pch.h" />
   </ItemGroup>
   <ItemGroup>
@@ -276,9 +275,7 @@
     <AppxManifest Include="Package.appxmanifest">
       <SubType>Designer</SubType>
     </AppxManifest>
-    
     <None Include="aaaaa_TemporaryKey.pfx" />
-    
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Content\SamplePixelShader.hlsl">

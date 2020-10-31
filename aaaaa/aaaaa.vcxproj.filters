@@ -62,5 +62,27 @@
     <Image Include="Assets\Wide310x150Logo.scale-200.png">
       <Filter>Assets</Filter>
     </Image>
+    <Filter Include="uhh">
+      <UniqueIdentifier>{511ad84f-dde4-4cd8-b058-9950ae040862}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="App.cpp" />
+    <ClCompile Include="aaaaaMain.cpp" />
+    <ClCompile Include="pch.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="App.h" />
+    <ClInclude Include="aaaaaMain.h" />
+    <ClInclude Include="pch.h" />
+    <ClInclude Include="Cube.h">
+      <Filter>uhh</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <AppxManifest Include="Package.appxmanifest" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="aaaaa_TemporaryKey.pfx" />
   </ItemGroup>
 </Project>
