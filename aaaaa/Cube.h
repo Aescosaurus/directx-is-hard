@@ -7,9 +7,13 @@
 
 class Cube
 {
-private:
-	Microsoft::WRL::ComPtr<ID3D12Resource> m_vertexBuffer;
-	Microsoft::WRL::ComPtr<ID3D12Resource> m_indexBuffer;
-	D3D12_VERTEX_BUFFER_VIEW m_vertexBufferView;
-	D3D12_INDEX_BUFFER_VIEW m_indexBufferView;
+public:
+	Cube()
+	{
+	}
+public:
+	Microsoft::WRL::ComPtr<ID3D12Resource> vertexBuffer;
+	Microsoft::WRL::ComPtr<ID3D12Resource> indexBuffer;
+	D3D12_VERTEX_BUFFER_VIEW vertexBufferView;
+	D3D12_INDEX_BUFFER_VIEW indexBufferView;
 };

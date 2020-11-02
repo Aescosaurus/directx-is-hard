@@ -3,6 +3,7 @@
 #include "..\Common\DeviceResources.h"
 #include "ShaderStructures.h"
 #include "..\Common\StepTimer.h"
+#include "Cube.h"
 
 namespace aaaaa
 {
@@ -27,6 +28,7 @@ namespace aaaaa
 		void LoadState();
 		void Rotate(float radians);
 
+		void GenerateCube( ID3D12Device* device );
 	private:
 		// Constant buffers must be 256-byte aligned.
 		static const UINT c_alignedConstantBufferSize = (sizeof(ModelViewProjectionConstantBuffer) + 255) & ~255;
@@ -39,8 +41,8 @@ namespace aaaaa
 		Microsoft::WRL::ComPtr<ID3D12RootSignature>			m_rootSignature;
 		Microsoft::WRL::ComPtr<ID3D12PipelineState>			m_pipelineState;
 		Microsoft::WRL::ComPtr<ID3D12DescriptorHeap>		m_cbvHeap;
-		Microsoft::WRL::ComPtr<ID3D12Resource>				m_vertexBuffer;
-		Microsoft::WRL::ComPtr<ID3D12Resource>				m_indexBuffer;
+		// Microsoft::WRL::ComPtr<ID3D12Resource>				m_vertexBuffer;
+		// Microsoft::WRL::ComPtr<ID3D12Resource>				m_indexBuffer;
 		Microsoft::WRL::ComPtr<ID3D12Resource>				m_constantBuffer;
 		ModelViewProjectionConstantBuffer					m_constantBufferData;
 		UINT8*												m_mappedConstantBuffer;
@@ -48,14 +50,16 @@ namespace aaaaa
 		D3D12_RECT											m_scissorRect;
 		std::vector<byte>									m_vertexShader;
 		std::vector<byte>									m_pixelShader;
-		D3D12_VERTEX_BUFFER_VIEW							m_vertexBufferView;
-		D3D12_INDEX_BUFFER_VIEW								m_indexBufferView;
+		// D3D12_VERTEX_BUFFER_VIEW							m_vertexBufferView;
+		// D3D12_INDEX_BUFFER_VIEW								m_indexBufferView;
 
 		// Variables used with the rendering loop.
 		bool	m_loadingComplete;
 		float	m_radiansPerSecond;
 		float	m_angle;
 		bool	m_tracking;
+
+		std::vector<Cube> cubes;
 	};
 }
 
