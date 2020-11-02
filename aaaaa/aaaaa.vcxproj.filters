@@ -84,5 +84,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="aaaaa_TemporaryKey.pfx" />
+    <None Include="packages.config" />
   </ItemGroup>
 </Project>

@@ -235,7 +235,7 @@ void aaaaa::Sample3DSceneRenderer::GenerateCube( ID3D12Device* d3dDevice )
 {
 	cubes.emplace_back();
 	Cube& tempCube = cubes.back();
-
+	
 	Microsoft::WRL::ComPtr<ID3D12Resource>& m_vertexBuffer = tempCube.vertexBuffer;
 	Microsoft::WRL::ComPtr<ID3D12Resource>& m_indexBuffer = tempCube.indexBuffer;
 	D3D12_VERTEX_BUFFER_VIEW& m_vertexBufferView = tempCube.vertexBufferView;

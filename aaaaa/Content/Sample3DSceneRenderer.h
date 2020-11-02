@@ -23,7 +23,6 @@ namespace aaaaa
 		void TrackingUpdate(float positionX);
 		void StopTracking();
 		bool IsTracking() { return m_tracking; }
-
 	private:
 		void LoadState();
 		void Rotate(float radians);

@@ -14,6 +14,8 @@ using namespace Windows::UI::Input;
 using namespace Windows::System;
 using namespace Windows::Foundation;
 using namespace Windows::Graphics::Display;
+using namespace DirectX;
+using namespace DirectX::SimpleMath;
 
 using Microsoft::WRL::ComPtr;
 
@@ -52,6 +54,18 @@ void App::Initialize(CoreApplicationView^ applicationView)
 
 	CoreApplication::Resuming +=
 		ref new EventHandler<Platform::Object^>(this, &App::OnResuming);
+
+	// m_keyboard = std::make_unique<DirectX::Keyboard>();
+	// m_mouse = std::make_unique<DirectX::Mouse>();
+	// m_mouse->SetWindow( applicationView->CoreWindow );
+
+	const auto& window = applicationView->CoreWindow;
+	// todo: make this work!
+	// m_keyboard = std::make_unique<Keyboard>();
+	// m_keyboard->SetWindow( reinterpret_cast< ABI::Windows::UI::Core::ICoreWindow* >( window ) );
+	// 
+	// m_mouse = std::make_unique<Mouse>();
+	// m_mouse->SetWindow( reinterpret_cast< ABI::Windows::UI::Core::ICoreWindow* >( window ) );
 }
 
 // Called when the CoreWindow object is created (or re-created).
