@@ -37,3 +37,7 @@
 #include "SpriteFont.h"
 #include "VertexTypes.h"
 #include "WICTextureLoader.h"
+
+
+
+#include <windows.ui.xaml.input.h>

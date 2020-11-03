@@ -19,7 +19,6 @@ namespace aaaaa
 		void OnSuspending();
 		void OnResuming();
 		void OnDeviceRemoved();
-
 	private:
 		// TODO: Replace with your own content renderers.
 		std::unique_ptr<Sample3DSceneRenderer> m_sceneRenderer;

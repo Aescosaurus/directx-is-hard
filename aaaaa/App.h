@@ -35,6 +35,10 @@ namespace aaaaa
 		void OnOrientationChanged(Windows::Graphics::Display::DisplayInformation^ sender, Platform::Object^ args);
 		void OnDisplayContentsInvalidated(Windows::Graphics::Display::DisplayInformation^ sender, Platform::Object^ args);
 
+		void Grid_KeyUp( Platform::Object^ sender,Windows::UI::Xaml::Input::KeyRoutedEventArgs^ e )
+		{
+			auto a = e;
+		}
 	private:
 		// Private accessor for m_deviceResources, protects against device removed errors.
 		std::shared_ptr<DX::DeviceResources> GetDeviceResources();
