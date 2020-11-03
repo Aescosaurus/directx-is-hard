@@ -254,6 +254,10 @@
     <ClInclude Include="Content\ShaderStructures.h" />
     <ClInclude Include="Cube.h" />
     <ClInclude Include="pch.h" />
+    <ClInclude Include="Random.h" />
+    <ClInclude Include="Range.h" />
+    <ClInclude Include="Timer.h" />
+    <ClInclude Include="Vec3.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App.cpp" />

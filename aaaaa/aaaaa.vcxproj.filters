@@ -78,6 +78,18 @@
     <ClInclude Include="Cube.h">
       <Filter>uhh</Filter>
     </ClInclude>
+    <ClInclude Include="Vec3.h">
+      <Filter>uhh</Filter>
+    </ClInclude>
+    <ClInclude Include="Timer.h">
+      <Filter>uhh</Filter>
+    </ClInclude>
+    <ClInclude Include="Random.h">
+      <Filter>uhh</Filter>
+    </ClInclude>
+    <ClInclude Include="Range.h">
+      <Filter>uhh</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <AppxManifest Include="Package.appxmanifest" />

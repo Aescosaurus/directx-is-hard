@@ -3,7 +3,12 @@
 #include "..\Common\DeviceResources.h"
 #include "ShaderStructures.h"
 #include "..\Common\StepTimer.h"
+
 #include "Cube.h"
+#include "Vec3.h"
+#include "Timer.h"
+#include "Random.h"
+#include "Range.h"
 
 namespace aaaaa
 {
@@ -27,7 +32,8 @@ namespace aaaaa
 		void LoadState();
 		void Rotate(float radians);
 
-		void GenerateCube( ID3D12Device* device );
+		void GenerateRandCube();
+		void GenerateCube( const Vec3& pos,const Vec3& scale );
 	private:
 		// Constant buffers must be 256-byte aligned.
 		static const UINT c_alignedConstantBufferSize = (sizeof(ModelViewProjectionConstantBuffer) + 255) & ~255;
@@ -59,6 +65,10 @@ namespace aaaaa
 		bool	m_tracking;
 
 		std::vector<Cube> cubes;
+		Timer cubeSpawnTimer = 1.0f;
+		static constexpr float maxSpawnDist = 2.0f;
+		Range cubePosDist = Range{ -maxSpawnDist,maxSpawnDist };
+		Range cubeSizeDist = Range{ 0.01f,0.3f };
 	};
 }
 

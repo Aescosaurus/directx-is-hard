@@ -115,8 +115,12 @@ void Sample3DSceneRenderer::CreateDeviceDependentResources()
 		// Create a command list.
 		DX::ThrowIfFailed( d3dDevice->CreateCommandList( 0,D3D12_COMMAND_LIST_TYPE_DIRECT,m_deviceResources->GetCommandAllocator(),m_pipelineState.Get(),IID_PPV_ARGS( &m_commandList ) ) );
 		NAME_D3D12_OBJECT( m_commandList );
-
-		GenerateCube( d3dDevice );
+		
+		// for( int i = 0; i < cubePoolSize; ++i )
+		// {
+		// 	GenerateRandCube();
+		// }
+		GenerateCube( Vec3::Zero(),Vec3::One() );
 	} );
 
 	createAssetsTask.then( [this]() {
@@ -182,6 +186,13 @@ void Sample3DSceneRenderer::Update( DX::StepTimer const& timer )
 			m_angle += static_cast< float >( timer.GetElapsedSeconds() ) * m_radiansPerSecond;
 
 			Rotate( m_angle );
+
+			if( cubeSpawnTimer.Update( float( timer.GetElapsedSeconds() ) ) )
+			{
+				cubeSpawnTimer.Reset();
+				
+				// GenerateRandCube();
+			}
 		}
 
 		// Update the constant buffer resource.
@@ -231,9 +242,43 @@ void Sample3DSceneRenderer::Rotate( float radians )
 	XMStoreFloat4x4( &m_constantBufferData.model,XMMatrixTranspose( XMMatrixRotationY( radians ) ) );
 }
 
-void aaaaa::Sample3DSceneRenderer::GenerateCube( ID3D12Device* d3dDevice )
+void aaaaa::Sample3DSceneRenderer::GenerateRandCube()
 {
-	cubes.emplace_back();
+	constexpr int genTries = 50;
+	int curTry = 0;
+
+	Cube testCube{ Vec3::One(),Vec3::One() };
+	bool overlap = false;
+	while( ++curTry < genTries )
+	{
+		Vec3 posTry{ cubePosDist,cubePosDist,cubePosDist };
+		Vec3 sizeTry{ cubeSizeDist,cubeSizeDist,cubeSizeDist };
+		testCube = Cube{ posTry,sizeTry };
+
+		overlap = false;
+		for( const auto& cube : cubes )
+		{
+			if( testCube.IsOverlappingWith( cube ) )
+			{
+				overlap = true;
+				break;
+			}
+		}
+		if( !overlap )
+		{
+			break;
+		}
+	}
+
+	GenerateCube( testCube.pos,testCube.scale );
+	// GenerateCube( Vec3::Zero(),Vec3::One() );
+}
+
+void aaaaa::Sample3DSceneRenderer::GenerateCube( const Vec3& pos,const Vec3& scale )
+{
+	auto d3dDevice = m_deviceResources->GetD3DDevice();
+
+	cubes.emplace_back( Cube{ pos,scale } );
 	Cube& tempCube = cubes.back();
 	
 	Microsoft::WRL::ComPtr<ID3D12Resource>& m_vertexBuffer = tempCube.vertexBuffer;
@@ -263,35 +308,50 @@ void aaaaa::Sample3DSceneRenderer::GenerateCube( ID3D12Device* d3dDevice )
 		// { XMFLOAT3{ 0.5f,-0.5f,-0.5f },XMFLOAT3{ 0.0f,0.0f,0.0f } }, // 7
 		// 
 		{ XMFLOAT3{ -0.5f,0.5f,0.5f },XMFLOAT3{ 1.0f,0.0f,0.0f } }, // 0
-	{ XMFLOAT3{ 0.5f,0.5f,0.5f },XMFLOAT3{ 1.0f,0.0f,0.0f } }, // 1
-	{ XMFLOAT3{ -0.5f,-0.5f,0.5f },XMFLOAT3{ 1.0f,0.0f,0.0f } }, // 2
-	{ XMFLOAT3{ 0.5f,-0.5f,0.5f },XMFLOAT3{ 1.0f,0.0f,0.0f } }, // 3
-	// 
-	{ XMFLOAT3{ 0.5f,0.5f,0.5f },XMFLOAT3{ 0.0f,1.0f,0.0f } }, // 1
-	{ XMFLOAT3{ 0.5f,0.5f,-0.5f },XMFLOAT3{ 0.0f,1.0f,0.0f } }, // 5
-	{ XMFLOAT3{ 0.5f,-0.5f,0.5f },XMFLOAT3{ 0.0f,1.0f,0.0f } }, // 3
-	{ XMFLOAT3{ 0.5f,-0.5f,-0.5f },XMFLOAT3{ 0.0f,1.0f,0.0f } }, // 7
-	// 
-	{ XMFLOAT3{ 0.5f,0.5f,-0.5f },XMFLOAT3{ 0.0f,0.0f,1.0f } }, // 5
-	{ XMFLOAT3{ -0.5f,0.5f,-0.5f },XMFLOAT3{ 0.0f,0.0f,1.0f } }, // 4
-	{ XMFLOAT3{ 0.5f,-0.5f,-0.5f },XMFLOAT3{ 0.0f,0.0f,1.0f } }, // 7
-	{ XMFLOAT3{ -0.5f,-0.5f,-0.5f },XMFLOAT3{ 0.0f,0.0f,1.0f } }, // 6
-	// 
-	{ XMFLOAT3{ -0.5f,0.5f,-0.5f },XMFLOAT3{ 1.0f,1.0f,0.0f } }, // 4
-	{ XMFLOAT3{ -0.5f,0.5f,0.5f },XMFLOAT3{ 1.0f,1.0f,0.0f } }, // 0
-	{ XMFLOAT3{ -0.5f,-0.5f,-0.5f },XMFLOAT3{ 1.0f,1.0f,0.0f } }, // 6
-	{ XMFLOAT3{ -0.5f,-0.5f,0.5f },XMFLOAT3{ 1.0f,1.0f,0.0f } }, // 2
-	// 
-	{ XMFLOAT3{ -0.5f,-0.5f,0.5f },XMFLOAT3{ 0.0f,1.0f,1.0f } }, // 2
-	{ XMFLOAT3{ 0.5f,-0.5f,0.5f },XMFLOAT3{ 0.0f,1.0f,1.0f } }, // 3
-	{ XMFLOAT3{ -0.5f,-0.5f,-0.5f },XMFLOAT3{ 0.0f,1.0f,1.0f } }, // 6
-	{ XMFLOAT3{ 0.5f,-0.5f,-0.5f },XMFLOAT3{ 0.0f,1.0f,1.0f } }, // 7
-	// 
-	{ XMFLOAT3{ -0.5f,0.5f,-0.5f },XMFLOAT3{ 1.0f,0.0f,1.0f } }, // 4
-	{ XMFLOAT3{ 0.5f,0.5f,-0.5f },XMFLOAT3{ 1.0f,0.0f,1.0f } }, // 5
-	{ XMFLOAT3{ -0.5f,0.5f,0.5f },XMFLOAT3{ 1.0f,0.0f,1.0f } }, // 0
-	{ XMFLOAT3{ 0.5f,0.5f,0.5f },XMFLOAT3{ 1.0f,0.0f,1.0f } } // 1
+		{ XMFLOAT3{ 0.5f,0.5f,0.5f },XMFLOAT3{ 1.0f,0.0f,0.0f } }, // 1
+		{ XMFLOAT3{ -0.5f,-0.5f,0.5f },XMFLOAT3{ 1.0f,0.0f,0.0f } }, // 2
+		{ XMFLOAT3{ 0.5f,-0.5f,0.5f },XMFLOAT3{ 1.0f,0.0f,0.0f } }, // 3
+		// 
+		{ XMFLOAT3{ 0.5f,0.5f,0.5f },XMFLOAT3{ 0.0f,1.0f,0.0f } }, // 1
+		{ XMFLOAT3{ 0.5f,0.5f,-0.5f },XMFLOAT3{ 0.0f,1.0f,0.0f } }, // 5
+		{ XMFLOAT3{ 0.5f,-0.5f,0.5f },XMFLOAT3{ 0.0f,1.0f,0.0f } }, // 3
+		{ XMFLOAT3{ 0.5f,-0.5f,-0.5f },XMFLOAT3{ 0.0f,1.0f,0.0f } }, // 7
+		// 
+		{ XMFLOAT3{ 0.5f,0.5f,-0.5f },XMFLOAT3{ 0.0f,0.0f,1.0f } }, // 5
+		{ XMFLOAT3{ -0.5f,0.5f,-0.5f },XMFLOAT3{ 0.0f,0.0f,1.0f } }, // 4
+		{ XMFLOAT3{ 0.5f,-0.5f,-0.5f },XMFLOAT3{ 0.0f,0.0f,1.0f } }, // 7
+		{ XMFLOAT3{ -0.5f,-0.5f,-0.5f },XMFLOAT3{ 0.0f,0.0f,1.0f } }, // 6
+		// 
+		{ XMFLOAT3{ -0.5f,0.5f,-0.5f },XMFLOAT3{ 1.0f,1.0f,0.0f } }, // 4
+		{ XMFLOAT3{ -0.5f,0.5f,0.5f },XMFLOAT3{ 1.0f,1.0f,0.0f } }, // 0
+		{ XMFLOAT3{ -0.5f,-0.5f,-0.5f },XMFLOAT3{ 1.0f,1.0f,0.0f } }, // 6
+		{ XMFLOAT3{ -0.5f,-0.5f,0.5f },XMFLOAT3{ 1.0f,1.0f,0.0f } }, // 2
+		// 
+		{ XMFLOAT3{ -0.5f,-0.5f,0.5f },XMFLOAT3{ 0.0f,1.0f,1.0f } }, // 2
+		{ XMFLOAT3{ 0.5f,-0.5f,0.5f },XMFLOAT3{ 0.0f,1.0f,1.0f } }, // 3
+		{ XMFLOAT3{ -0.5f,-0.5f,-0.5f },XMFLOAT3{ 0.0f,1.0f,1.0f } }, // 6
+		{ XMFLOAT3{ 0.5f,-0.5f,-0.5f },XMFLOAT3{ 0.0f,1.0f,1.0f } }, // 7
+		// 
+		{ XMFLOAT3{ -0.5f,0.5f,-0.5f },XMFLOAT3{ 1.0f,0.0f,1.0f } }, // 4
+		{ XMFLOAT3{ 0.5f,0.5f,-0.5f },XMFLOAT3{ 1.0f,0.0f,1.0f } }, // 5
+		{ XMFLOAT3{ -0.5f,0.5f,0.5f },XMFLOAT3{ 1.0f,0.0f,1.0f } }, // 0
+		{ XMFLOAT3{ 0.5f,0.5f,0.5f },XMFLOAT3{ 1.0f,0.0f,1.0f } } // 1
 	};
+
+	for( int i = 0; i < ARRAYSIZE( cubeVertices ); ++i )
+	{
+		auto& vertex = cubeVertices[i].pos;
+
+		// scale
+		vertex.x *= scale.x;
+		vertex.y *= scale.y;
+		vertex.z *= scale.z;
+
+		// translate
+		vertex.x += pos.x;
+		vertex.y += pos.y;
+		vertex.z += pos.z;
+	}
 
 	const UINT vertexBufferSize = sizeof( cubeVertices );
 
