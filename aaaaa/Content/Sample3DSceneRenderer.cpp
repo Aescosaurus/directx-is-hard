@@ -304,12 +304,24 @@ void aaaaa::Sample3DSceneRenderer::GenerateRandCube()
 		}
 	}
 
-	GenerateCube( testCube.pos,testCube.scale );
+	std::vector<float> cols;
+	for( int i = 0; i < 6 * 3; ++i )
+	{
+		cols.emplace_back( Random::Range( 0.0f,1.0f ) );
+	}
+	GenerateCube( testCube.pos,testCube.scale,cols );
 	// GenerateCube( Vec3::Zero(),Vec3::One() );
 }
 
-void aaaaa::Sample3DSceneRenderer::GenerateCube( const Vec3& pos,const Vec3& scale )
+void aaaaa::Sample3DSceneRenderer::GenerateCube( const Vec3& pos,const Vec3& scale,
+	const std::vector<float>& colors )
 {
+	const auto get_col = [&]( int i )
+	{
+		i *= 3;
+		return( XMFLOAT3{ colors[i],colors[i + 1],colors[i + 2] } );
+	};
+
 	auto d3dDevice = m_deviceResources->GetD3DDevice();
 
 	cubes.emplace_back( Cube{ pos,scale } );
@@ -341,35 +353,35 @@ void aaaaa::Sample3DSceneRenderer::GenerateCube( const Vec3& pos,const Vec3& sca
 		// { XMFLOAT3{ -0.5f,-0.5f,-0.5f },XMFLOAT3{ 0.0f,0.0f,0.0f } }, // 6
 		// { XMFLOAT3{ 0.5f,-0.5f,-0.5f },XMFLOAT3{ 0.0f,0.0f,0.0f } }, // 7
 		// 
-		{ XMFLOAT3{ -0.5f,0.5f,0.5f },XMFLOAT3{ 1.0f,0.0f,0.0f } }, // 0
-		{ XMFLOAT3{ 0.5f,0.5f,0.5f },XMFLOAT3{ 1.0f,0.0f,0.0f } }, // 1
-		{ XMFLOAT3{ -0.5f,-0.5f,0.5f },XMFLOAT3{ 1.0f,0.0f,0.0f } }, // 2
-		{ XMFLOAT3{ 0.5f,-0.5f,0.5f },XMFLOAT3{ 1.0f,0.0f,0.0f } }, // 3
+		{ XMFLOAT3{ -0.5f,0.5f,0.5f },get_col( 0 ) }, // 0
+		{ XMFLOAT3{ 0.5f,0.5f,0.5f },get_col( 0 ) }, // 1
+		{ XMFLOAT3{ -0.5f,-0.5f,0.5f },get_col( 0 ) }, // 2
+		{ XMFLOAT3{ 0.5f,-0.5f,0.5f },get_col( 0 ) }, // 3
 		// 
-		{ XMFLOAT3{ 0.5f,0.5f,0.5f },XMFLOAT3{ 0.0f,1.0f,0.0f } }, // 1
-		{ XMFLOAT3{ 0.5f,0.5f,-0.5f },XMFLOAT3{ 0.0f,1.0f,0.0f } }, // 5
-		{ XMFLOAT3{ 0.5f,-0.5f,0.5f },XMFLOAT3{ 0.0f,1.0f,0.0f } }, // 3
-		{ XMFLOAT3{ 0.5f,-0.5f,-0.5f },XMFLOAT3{ 0.0f,1.0f,0.0f } }, // 7
+		{ XMFLOAT3{ 0.5f,0.5f,0.5f },get_col( 1 ) }, // 1
+		{ XMFLOAT3{ 0.5f,0.5f,-0.5f },get_col( 1 ) }, // 5
+		{ XMFLOAT3{ 0.5f,-0.5f,0.5f },get_col( 1 ) }, // 3
+		{ XMFLOAT3{ 0.5f,-0.5f,-0.5f },get_col( 1 ) }, // 7
 		// 
-		{ XMFLOAT3{ 0.5f,0.5f,-0.5f },XMFLOAT3{ 0.0f,0.0f,1.0f } }, // 5
-		{ XMFLOAT3{ -0.5f,0.5f,-0.5f },XMFLOAT3{ 0.0f,0.0f,1.0f } }, // 4
-		{ XMFLOAT3{ 0.5f,-0.5f,-0.5f },XMFLOAT3{ 0.0f,0.0f,1.0f } }, // 7
-		{ XMFLOAT3{ -0.5f,-0.5f,-0.5f },XMFLOAT3{ 0.0f,0.0f,1.0f } }, // 6
+		{ XMFLOAT3{ 0.5f,0.5f,-0.5f },get_col( 2 ) }, // 5
+		{ XMFLOAT3{ -0.5f,0.5f,-0.5f },get_col( 2 ) }, // 4
+		{ XMFLOAT3{ 0.5f,-0.5f,-0.5f },get_col( 2 ) }, // 7
+		{ XMFLOAT3{ -0.5f,-0.5f,-0.5f },get_col( 2 ) }, // 6
 		// 
-		{ XMFLOAT3{ -0.5f,0.5f,-0.5f },XMFLOAT3{ 1.0f,1.0f,0.0f } }, // 4
-		{ XMFLOAT3{ -0.5f,0.5f,0.5f },XMFLOAT3{ 1.0f,1.0f,0.0f } }, // 0
-		{ XMFLOAT3{ -0.5f,-0.5f,-0.5f },XMFLOAT3{ 1.0f,1.0f,0.0f } }, // 6
-		{ XMFLOAT3{ -0.5f,-0.5f,0.5f },XMFLOAT3{ 1.0f,1.0f,0.0f } }, // 2
+		{ XMFLOAT3{ -0.5f,0.5f,-0.5f },get_col( 3 ) }, // 4
+		{ XMFLOAT3{ -0.5f,0.5f,0.5f },get_col( 3 ) }, // 0
+		{ XMFLOAT3{ -0.5f,-0.5f,-0.5f },get_col( 3 ) }, // 6
+		{ XMFLOAT3{ -0.5f,-0.5f,0.5f },get_col( 3 ) }, // 2
 		// 
-		{ XMFLOAT3{ -0.5f,-0.5f,0.5f },XMFLOAT3{ 0.0f,1.0f,1.0f } }, // 2
-		{ XMFLOAT3{ 0.5f,-0.5f,0.5f },XMFLOAT3{ 0.0f,1.0f,1.0f } }, // 3
-		{ XMFLOAT3{ -0.5f,-0.5f,-0.5f },XMFLOAT3{ 0.0f,1.0f,1.0f } }, // 6
-		{ XMFLOAT3{ 0.5f,-0.5f,-0.5f },XMFLOAT3{ 0.0f,1.0f,1.0f } }, // 7
+		{ XMFLOAT3{ -0.5f,-0.5f,0.5f },get_col( 4 ) }, // 2
+		{ XMFLOAT3{ 0.5f,-0.5f,0.5f },get_col( 4 ) }, // 3
+		{ XMFLOAT3{ -0.5f,-0.5f,-0.5f },get_col( 4 ) }, // 6
+		{ XMFLOAT3{ 0.5f,-0.5f,-0.5f },get_col( 4 ) }, // 7
 		// 
-		{ XMFLOAT3{ -0.5f,0.5f,-0.5f },XMFLOAT3{ 1.0f,0.0f,1.0f } }, // 4
-		{ XMFLOAT3{ 0.5f,0.5f,-0.5f },XMFLOAT3{ 1.0f,0.0f,1.0f } }, // 5
-		{ XMFLOAT3{ -0.5f,0.5f,0.5f },XMFLOAT3{ 1.0f,0.0f,1.0f } }, // 0
-		{ XMFLOAT3{ 0.5f,0.5f,0.5f },XMFLOAT3{ 1.0f,0.0f,1.0f } } // 1
+		{ XMFLOAT3{ -0.5f,0.5f,-0.5f },get_col( 5 ) }, // 4
+		{ XMFLOAT3{ 0.5f,0.5f,-0.5f },get_col( 5 ) }, // 5
+		{ XMFLOAT3{ -0.5f,0.5f,0.5f },get_col( 5 ) }, // 0
+		{ XMFLOAT3{ 0.5f,0.5f,0.5f },get_col( 5 ) } // 1
 	};
 
 	for( int i = 0; i < ARRAYSIZE( cubeVertices ); ++i )

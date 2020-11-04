@@ -9,6 +9,7 @@
 #include "Timer.h"
 #include "Random.h"
 #include "Range.h"
+#include <DirectXMath.h>
 
 namespace aaaaa
 {
@@ -33,7 +34,8 @@ namespace aaaaa
 		void Rotate(float radians);
 
 		void GenerateRandCube();
-		void GenerateCube( const Vec3& pos,const Vec3& scale );
+		void GenerateCube( const Vec3& pos,const Vec3& scale,
+			const std::vector<float>& colors );
 	private:
 		// Constant buffers must be 256-byte aligned.
 		static const UINT c_alignedConstantBufferSize = (sizeof(ModelViewProjectionConstantBuffer) + 255) & ~255;
