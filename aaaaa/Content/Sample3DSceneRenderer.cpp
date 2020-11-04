@@ -120,7 +120,8 @@ void Sample3DSceneRenderer::CreateDeviceDependentResources()
 		// {
 		// 	GenerateRandCube();
 		// }
-		GenerateCube( Vec3::Zero(),Vec3::One() );
+		GenerateRandCube();
+		// GenerateCube( Vec3::Zero(),Vec3::One() );
 	} );
 
 	createAssetsTask.then( [this]() {
@@ -183,9 +184,35 @@ void Sample3DSceneRenderer::Update( DX::StepTimer const& timer )
 		if( !m_tracking )
 		{
 			// Rotate the cube a small amount.
-			m_angle += static_cast< float >( timer.GetElapsedSeconds() ) * m_radiansPerSecond;
+			// m_angle += static_cast< float >( timer.GetElapsedSeconds() ) * m_radiansPerSecond;
+			const auto rotAmount = static_cast<float>( timer.GetElapsedSeconds() ) * m_radiansPerSecond;
+			if( rotMode == 0 ) xAng += rotAmount;
+			else if( rotMode == 1 ) yAng += rotAmount;
+			else if( rotMode == 2 ) zAng += rotAmount;
+			else if( rotMode == 3 )
+			{
+				xAng += rotAmount;
+				yAng += rotAmount;
+			}
+			else if( rotMode == 4 )
+			{
+				yAng += rotAmount;
+				zAng += rotAmount;
+			}
+			else
+			{
+				xAng += rotAmount;
+				zAng += rotAmount;
+			}
 
 			Rotate( m_angle );
+
+			if( rotSwitchTimer.Update( float( timer.GetElapsedSeconds() ) ) )
+			{
+				rotSwitchTimer.Reset();
+
+				if( ++rotMode > 5 ) rotMode = 0;
+			}
 
 			if( cubeSpawnTimer.Update( float( timer.GetElapsedSeconds() ) ) )
 			{
@@ -239,7 +266,14 @@ void Sample3DSceneRenderer::LoadState()
 void Sample3DSceneRenderer::Rotate( float radians )
 {
 	// Prepare to pass the updated model matrix to the shader.
-	XMStoreFloat4x4( &m_constantBufferData.model,XMMatrixTranspose( XMMatrixRotationY( radians ) ) );
+	const auto xMat = XMMatrixRotationX( xAng );
+	const auto yMat = XMMatrixRotationY( yAng );
+	const auto zMat = XMMatrixRotationZ( zAng );
+
+	const auto combinedMat = xMat * yMat * zMat;
+	
+	// XMStoreFloat4x4( &m_constantBufferData.model,XMMatrixTranspose( XMMatrixRotationY( radians ) ) );
+	XMStoreFloat4x4( &m_constantBufferData.model,combinedMat );
 }
 
 void aaaaa::Sample3DSceneRenderer::GenerateRandCube()

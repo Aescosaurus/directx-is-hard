@@ -66,9 +66,16 @@ namespace aaaaa
 
 		std::vector<Cube> cubes;
 		Timer cubeSpawnTimer = 1.0f;
-		static constexpr float maxSpawnDist = 2.0f;
+		static constexpr float maxSpawnDist = 0.4f;
 		Range cubePosDist = Range{ -maxSpawnDist,maxSpawnDist };
-		Range cubeSizeDist = Range{ 0.01f,0.3f };
+		Range cubeSizeDist = Range{ 0.1f,1.1f };
+
+		int rotMode = 0;
+		Timer rotSwitchTimer = 5.0f;
+
+		float xAng = 0.0f;
+		float yAng = 0.0f;
+		float zAng = 0.0f;
 	};
 }
 
