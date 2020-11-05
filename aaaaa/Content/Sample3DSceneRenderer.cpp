@@ -115,12 +115,18 @@ void Sample3DSceneRenderer::CreateDeviceDependentResources()
 		// Create a command list.
 		DX::ThrowIfFailed( d3dDevice->CreateCommandList( 0,D3D12_COMMAND_LIST_TYPE_DIRECT,m_deviceResources->GetCommandAllocator(),m_pipelineState.Get(),IID_PPV_ARGS( &m_commandList ) ) );
 		NAME_D3D12_OBJECT( m_commandList );
+
+		GenCubeModel();
 		
 		// for( int i = 0; i < cubePoolSize; ++i )
 		// {
 		// 	GenerateRandCube();
 		// }
-		GenerateRandCube();
+
+		// GenerateRandCube();
+
+		GenerateCube( Vec3::Zero(),Vec3{ 1.0f,0.5f,1.0f } );
+
 		// GenerateCube( Vec3::Zero(),Vec3::One() );
 	} );
 
@@ -278,9 +284,14 @@ void Sample3DSceneRenderer::Rotate( float radians )
 	const auto zMat = XMMatrixRotationZ( zAng );
 
 	const auto combinedMat = xMat * yMat * zMat;
+
+	for( auto& cube : cubes )
+	{
+		( *( ( XMMATRIX* )( cube.mats[int( Cube::MatType::Rotation )] ) ) ) = combinedMat;
+	}
 	
 	// XMStoreFloat4x4( &m_constantBufferData.model,XMMatrixTranspose( XMMatrixRotationY( radians ) ) );
-	XMStoreFloat4x4( &m_constantBufferData.model,combinedMat );
+	// XMStoreFloat4x4( &m_constantBufferData.model,combinedMat );
 }
 
 void aaaaa::Sample3DSceneRenderer::GenerateRandCube()
@@ -311,18 +322,44 @@ void aaaaa::Sample3DSceneRenderer::GenerateRandCube()
 		}
 	}
 
-	std::vector<float> cols;
-	for( int i = 0; i < 6 * 3; ++i )
-	{
-		cols.emplace_back( Random::Range( 0.0f,1.0f ) );
-	}
-	GenerateCube( testCube.pos,testCube.scale,cols );
+	GenerateCube( testCube.pos,testCube.scale );
 	// GenerateCube( Vec3::Zero(),Vec3::One() );
 }
 
-void aaaaa::Sample3DSceneRenderer::GenerateCube( const Vec3& pos,const Vec3& scale,
-	const std::vector<float>& colors )
+void aaaaa::Sample3DSceneRenderer::GenerateCube( const Vec3& pos,const Vec3& scale )
 {
+	cubes.emplace_back( Cube{ pos,scale,sizeof( XMMATRIX ) } );
+	
+	// XMMATRIX& tempMat = ( *( XMMATRIX* )( cubes.back().mat ) );
+	// 
+	// // XMMatrixTranspose( XMMatrixRotationY( radians ) )
+	// tempMat = XMMatrixIdentity() *
+	// 	XMMatrixTranslation( pos.x,pos.y,pos.z );
+
+	// cubes.back().mats.emplace_back( XMMatrixIdentity() );
+	// cubes.back().mats.emplace_back( XMMatrixTranslation( pos.x,pos.y,pos.z ) );
+
+	// this si so dumbbb
+	*( ( XMMATRIX* )( cubes.back().mats[int( Cube::MatType::Identity )] ) ) = XMMatrixIdentity();
+	*( ( XMMATRIX* )( cubes.back().mats[int( Cube::MatType::Scale )] ) ) = XMMatrixScaling( scale.x,scale.y,scale.z );
+	*( ( XMMATRIX* )( cubes.back().mats[int( Cube::MatType::Rotation )] ) ) = XMMatrixIdentity();
+	*( ( XMMATRIX* )( cubes.back().mats[int( Cube::MatType::Orbit )] ) ) = XMMatrixIdentity();
+	*( ( XMMATRIX* )( cubes.back().mats[int( Cube::MatType::Translate )] ) ) = XMMatrixTranslation( pos.x,pos.y,pos.z );
+
+	auto& test = cubes.back().mats;
+
+	int* completeMat = CombineMats( cubes.back().mats );
+	auto temp = ( XMMATRIX* )( completeMat );
+	delete completeMat;
+}
+
+void aaaaa::Sample3DSceneRenderer::GenCubeModel()
+{
+	std::vector<float> colors;
+	for( int i = 0; i < 6 * 3; ++i )
+	{
+		colors.emplace_back( Random::Range( 0.0f,1.0f ) );
+	}
 	const auto get_col = [&]( int i )
 	{
 		i *= 3;
@@ -330,10 +367,6 @@ void aaaaa::Sample3DSceneRenderer::GenerateCube( const Vec3& pos,const Vec3& sca
 	};
 
 	auto d3dDevice = m_deviceResources->GetD3DDevice();
-
-	cubes.emplace_back( Cube{ pos,scale } );
-	Cube& tempCube = cubes.back();
-	
 	// Microsoft::WRL::ComPtr<ID3D12Resource>& m_vertexBuffer = vertexBuffer;
 	// Microsoft::WRL::ComPtr<ID3D12Resource>& m_indexBuffer = indexBuffer;
 	// D3D12_VERTEX_BUFFER_VIEW& m_vertexBufferView = vertexBufferView;
@@ -361,50 +394,50 @@ void aaaaa::Sample3DSceneRenderer::GenerateCube( const Vec3& pos,const Vec3& sca
 		// { XMFLOAT3{ 0.5f,-0.5f,-0.5f },XMFLOAT3{ 0.0f,0.0f,0.0f } }, // 7
 		// 
 		{ XMFLOAT3{ -0.5f,0.5f,0.5f },get_col( 0 ) }, // 0
-		{ XMFLOAT3{ 0.5f,0.5f,0.5f },get_col( 0 ) }, // 1
-		{ XMFLOAT3{ -0.5f,-0.5f,0.5f },get_col( 0 ) }, // 2
-		{ XMFLOAT3{ 0.5f,-0.5f,0.5f },get_col( 0 ) }, // 3
-		// 
-		{ XMFLOAT3{ 0.5f,0.5f,0.5f },get_col( 1 ) }, // 1
-		{ XMFLOAT3{ 0.5f,0.5f,-0.5f },get_col( 1 ) }, // 5
-		{ XMFLOAT3{ 0.5f,-0.5f,0.5f },get_col( 1 ) }, // 3
-		{ XMFLOAT3{ 0.5f,-0.5f,-0.5f },get_col( 1 ) }, // 7
-		// 
-		{ XMFLOAT3{ 0.5f,0.5f,-0.5f },get_col( 2 ) }, // 5
-		{ XMFLOAT3{ -0.5f,0.5f,-0.5f },get_col( 2 ) }, // 4
-		{ XMFLOAT3{ 0.5f,-0.5f,-0.5f },get_col( 2 ) }, // 7
-		{ XMFLOAT3{ -0.5f,-0.5f,-0.5f },get_col( 2 ) }, // 6
-		// 
-		{ XMFLOAT3{ -0.5f,0.5f,-0.5f },get_col( 3 ) }, // 4
-		{ XMFLOAT3{ -0.5f,0.5f,0.5f },get_col( 3 ) }, // 0
-		{ XMFLOAT3{ -0.5f,-0.5f,-0.5f },get_col( 3 ) }, // 6
-		{ XMFLOAT3{ -0.5f,-0.5f,0.5f },get_col( 3 ) }, // 2
-		// 
-		{ XMFLOAT3{ -0.5f,-0.5f,0.5f },get_col( 4 ) }, // 2
-		{ XMFLOAT3{ 0.5f,-0.5f,0.5f },get_col( 4 ) }, // 3
-		{ XMFLOAT3{ -0.5f,-0.5f,-0.5f },get_col( 4 ) }, // 6
-		{ XMFLOAT3{ 0.5f,-0.5f,-0.5f },get_col( 4 ) }, // 7
-		// 
-		{ XMFLOAT3{ -0.5f,0.5f,-0.5f },get_col( 5 ) }, // 4
-		{ XMFLOAT3{ 0.5f,0.5f,-0.5f },get_col( 5 ) }, // 5
-		{ XMFLOAT3{ -0.5f,0.5f,0.5f },get_col( 5 ) }, // 0
-		{ XMFLOAT3{ 0.5f,0.5f,0.5f },get_col( 5 ) } // 1
+	{ XMFLOAT3{ 0.5f,0.5f,0.5f },get_col( 0 ) }, // 1
+	{ XMFLOAT3{ -0.5f,-0.5f,0.5f },get_col( 0 ) }, // 2
+	{ XMFLOAT3{ 0.5f,-0.5f,0.5f },get_col( 0 ) }, // 3
+	// 
+	{ XMFLOAT3{ 0.5f,0.5f,0.5f },get_col( 1 ) }, // 1
+	{ XMFLOAT3{ 0.5f,0.5f,-0.5f },get_col( 1 ) }, // 5
+	{ XMFLOAT3{ 0.5f,-0.5f,0.5f },get_col( 1 ) }, // 3
+	{ XMFLOAT3{ 0.5f,-0.5f,-0.5f },get_col( 1 ) }, // 7
+	// 
+	{ XMFLOAT3{ 0.5f,0.5f,-0.5f },get_col( 2 ) }, // 5
+	{ XMFLOAT3{ -0.5f,0.5f,-0.5f },get_col( 2 ) }, // 4
+	{ XMFLOAT3{ 0.5f,-0.5f,-0.5f },get_col( 2 ) }, // 7
+	{ XMFLOAT3{ -0.5f,-0.5f,-0.5f },get_col( 2 ) }, // 6
+	// 
+	{ XMFLOAT3{ -0.5f,0.5f,-0.5f },get_col( 3 ) }, // 4
+	{ XMFLOAT3{ -0.5f,0.5f,0.5f },get_col( 3 ) }, // 0
+	{ XMFLOAT3{ -0.5f,-0.5f,-0.5f },get_col( 3 ) }, // 6
+	{ XMFLOAT3{ -0.5f,-0.5f,0.5f },get_col( 3 ) }, // 2
+	// 
+	{ XMFLOAT3{ -0.5f,-0.5f,0.5f },get_col( 4 ) }, // 2
+	{ XMFLOAT3{ 0.5f,-0.5f,0.5f },get_col( 4 ) }, // 3
+	{ XMFLOAT3{ -0.5f,-0.5f,-0.5f },get_col( 4 ) }, // 6
+	{ XMFLOAT3{ 0.5f,-0.5f,-0.5f },get_col( 4 ) }, // 7
+	// 
+	{ XMFLOAT3{ -0.5f,0.5f,-0.5f },get_col( 5 ) }, // 4
+	{ XMFLOAT3{ 0.5f,0.5f,-0.5f },get_col( 5 ) }, // 5
+	{ XMFLOAT3{ -0.5f,0.5f,0.5f },get_col( 5 ) }, // 0
+	{ XMFLOAT3{ 0.5f,0.5f,0.5f },get_col( 5 ) } // 1
 	};
 
-	for( int i = 0; i < ARRAYSIZE( cubeVertices ); ++i )
-	{
-		auto& vertex = cubeVertices[i].pos;
-
-		// scale
-		vertex.x *= scale.x;
-		vertex.y *= scale.y;
-		vertex.z *= scale.z;
-
-		// translate
-		vertex.x += pos.x;
-		vertex.y += pos.y;
-		vertex.z += pos.z;
-	}
+	// for( int i = 0; i < ARRAYSIZE( cubeVertices ); ++i )
+	// {
+	// 	auto& vertex = cubeVertices[i].pos;
+	// 
+	// 	// scale
+	// 	vertex.x *= scale.x;
+	// 	vertex.y *= scale.y;
+	// 	vertex.z *= scale.z;
+	// 
+	// 	// translate
+	// 	vertex.x += pos.x;
+	// 	vertex.y += pos.y;
+	// 	vertex.z += pos.z;
+	// }
 
 	const UINT vertexBufferSize = sizeof( cubeVertices );
 
@@ -592,6 +625,22 @@ void aaaaa::Sample3DSceneRenderer::GenerateCube( const Vec3& pos,const Vec3& sca
 	m_deviceResources->WaitForGpu();
 }
 
+int* aaaaa::Sample3DSceneRenderer::CombineMats( const std::vector<int*>& mats ) const
+{
+	int* result = static_cast<int*>( malloc( sizeof( XMMATRIX ) ) );
+	XMMATRIX& buildupMat = ( *( ( XMMATRIX* )( result ) ) );
+	buildupMat = XMMatrixIdentity();
+
+	for( const int* mat : mats )
+	{
+		const XMMATRIX& curMat = ( *( ( XMMATRIX* )( mat ) ) );
+		buildupMat *= curMat;
+		// buildupMat = XMMatrixMultiply( buildupMat,curMat );
+	}
+
+	return( result );
+}
+
 void Sample3DSceneRenderer::StartTracking()
 {
 	m_tracking = true;
@@ -626,53 +675,60 @@ bool Sample3DSceneRenderer::Render()
 	// The command list can be reset anytime after ExecuteCommandList() is called.
 	DX::ThrowIfFailed( m_commandList->Reset( m_deviceResources->GetCommandAllocator(),m_pipelineState.Get() ) );
 
-	PIXBeginEvent( m_commandList.Get(),0,L"Draw the cube" );
+	for( const auto& cube : cubes )
 	{
-		// Set the graphics root signature and descriptor heaps to be used by this frame.
-		m_commandList->SetGraphicsRootSignature( m_rootSignature.Get() );
-		ID3D12DescriptorHeap* ppHeaps[] = { m_cbvHeap.Get() };
-		m_commandList->SetDescriptorHeaps( _countof( ppHeaps ),ppHeaps );
+		int* completeMat = CombineMats( cube.mats );
+		XMStoreFloat4x4( &m_constantBufferData.model,*( ( XMMATRIX* )( completeMat ) ) );
+		delete completeMat;
 
-		// Bind the current frame's constant buffer to the pipeline.
-		CD3DX12_GPU_DESCRIPTOR_HANDLE gpuHandle( m_cbvHeap->GetGPUDescriptorHandleForHeapStart(),m_deviceResources->GetCurrentFrameIndex(),m_cbvDescriptorSize );
-		m_commandList->SetGraphicsRootDescriptorTable( 0,gpuHandle );
+		PIXBeginEvent( m_commandList.Get(),0,L"Draw the cube" );
+		{
+			// Set the graphics root signature and descriptor heaps to be used by this frame.
+			m_commandList->SetGraphicsRootSignature( m_rootSignature.Get() );
+			ID3D12DescriptorHeap* ppHeaps[] = { m_cbvHeap.Get() };
+			m_commandList->SetDescriptorHeaps( _countof( ppHeaps ),ppHeaps );
 
-		// Set the viewport and scissor rectangle.
-		D3D12_VIEWPORT viewport = m_deviceResources->GetScreenViewport();
-		m_commandList->RSSetViewports( 1,&viewport );
-		m_commandList->RSSetScissorRects( 1,&m_scissorRect );
+			// Bind the current frame's constant buffer to the pipeline.
+			CD3DX12_GPU_DESCRIPTOR_HANDLE gpuHandle( m_cbvHeap->GetGPUDescriptorHandleForHeapStart(),m_deviceResources->GetCurrentFrameIndex(),m_cbvDescriptorSize );
+			m_commandList->SetGraphicsRootDescriptorTable( 0,gpuHandle );
 
-		// Indicate this resource will be in use as a render target.
-		CD3DX12_RESOURCE_BARRIER renderTargetResourceBarrier =
-			CD3DX12_RESOURCE_BARRIER::Transition( m_deviceResources->GetRenderTarget(),D3D12_RESOURCE_STATE_PRESENT,D3D12_RESOURCE_STATE_RENDER_TARGET );
-		m_commandList->ResourceBarrier( 1,&renderTargetResourceBarrier );
+			// Set the viewport and scissor rectangle.
+			D3D12_VIEWPORT viewport = m_deviceResources->GetScreenViewport();
+			m_commandList->RSSetViewports( 1,&viewport );
+			m_commandList->RSSetScissorRects( 1,&m_scissorRect );
 
-		// Record drawing commands.
-		D3D12_CPU_DESCRIPTOR_HANDLE renderTargetView = m_deviceResources->GetRenderTargetView();
-		D3D12_CPU_DESCRIPTOR_HANDLE depthStencilView = m_deviceResources->GetDepthStencilView();
-		m_commandList->ClearRenderTargetView( renderTargetView,DirectX::Colors::CornflowerBlue,0,nullptr );
-		m_commandList->ClearDepthStencilView( depthStencilView,D3D12_CLEAR_FLAG_DEPTH,1.0f,0,0,nullptr );
+			// Indicate this resource will be in use as a render target.
+			CD3DX12_RESOURCE_BARRIER renderTargetResourceBarrier =
+				CD3DX12_RESOURCE_BARRIER::Transition( m_deviceResources->GetRenderTarget(),D3D12_RESOURCE_STATE_PRESENT,D3D12_RESOURCE_STATE_RENDER_TARGET );
+			m_commandList->ResourceBarrier( 1,&renderTargetResourceBarrier );
 
-		m_commandList->OMSetRenderTargets( 1,&renderTargetView,false,&depthStencilView );
+			// Record drawing commands.
+			D3D12_CPU_DESCRIPTOR_HANDLE renderTargetView = m_deviceResources->GetRenderTargetView();
+			D3D12_CPU_DESCRIPTOR_HANDLE depthStencilView = m_deviceResources->GetDepthStencilView();
+			m_commandList->ClearRenderTargetView( renderTargetView,DirectX::Colors::CornflowerBlue,0,nullptr );
+			m_commandList->ClearDepthStencilView( depthStencilView,D3D12_CLEAR_FLAG_DEPTH,1.0f,0,0,nullptr );
 
-		m_commandList->IASetPrimitiveTopology( D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST );
-		m_commandList->IASetVertexBuffers( 0,1,&m_vertexBufferView );
-		m_commandList->IASetIndexBuffer( &m_indexBufferView );
-		m_commandList->DrawIndexedInstanced( 36,1,0,0,0 );
-		// for( const auto& cube : cubes )
-		// {
-		// 	m_commandList->IASetPrimitiveTopology( D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST );
-		// 	m_commandList->IASetVertexBuffers( 0,1,&cube.vertexBufferView );
-		// 	m_commandList->IASetIndexBuffer( &cube.indexBufferView );
-		// 	m_commandList->DrawIndexedInstanced( 36,1,0,0,0 );
-		// }
+			m_commandList->OMSetRenderTargets( 1,&renderTargetView,false,&depthStencilView );
 
-		// Indicate that the render target will now be used to present when the command list is done executing.
-		CD3DX12_RESOURCE_BARRIER presentResourceBarrier =
-			CD3DX12_RESOURCE_BARRIER::Transition( m_deviceResources->GetRenderTarget(),D3D12_RESOURCE_STATE_RENDER_TARGET,D3D12_RESOURCE_STATE_PRESENT );
-		m_commandList->ResourceBarrier( 1,&presentResourceBarrier );
+			m_commandList->IASetPrimitiveTopology( D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST );
+			m_commandList->IASetVertexBuffers( 0,1,&m_vertexBufferView );
+			m_commandList->IASetIndexBuffer( &m_indexBufferView );
+			m_commandList->DrawIndexedInstanced( 36,1,0,0,0 );
+			// for( const auto& cube : cubes )
+			// {
+			// 	m_commandList->IASetPrimitiveTopology( D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST );
+			// 	m_commandList->IASetVertexBuffers( 0,1,&cube.vertexBufferView );
+			// 	m_commandList->IASetIndexBuffer( &cube.indexBufferView );
+			// 	m_commandList->DrawIndexedInstanced( 36,1,0,0,0 );
+			// }
+
+			// Indicate that the render target will now be used to present when the command list is done executing.
+			CD3DX12_RESOURCE_BARRIER presentResourceBarrier =
+				CD3DX12_RESOURCE_BARRIER::Transition( m_deviceResources->GetRenderTarget(),D3D12_RESOURCE_STATE_RENDER_TARGET,D3D12_RESOURCE_STATE_PRESENT );
+			m_commandList->ResourceBarrier( 1,&presentResourceBarrier );
+		}
+		PIXEndEvent( m_commandList.Get() );
 	}
-	PIXEndEvent( m_commandList.Get() );
 
 	DX::ThrowIfFailed( m_commandList->Close() );
 

@@ -5,15 +5,71 @@
 #include "..\Common\StepTimer.h"
 #include <d3d12.h>
 #include "Vec3.h"
+#include <DirectXMath.h>
+#include "pch.h"
 
 class Cube
 {
 public:
-	Cube( const Vec3& pos,const Vec3& scale )
+	enum class MatType
+	{
+		Identity,
+		Scale,
+		Rotation,
+		Orbit,
+		Translate,
+
+		Size
+	};
+public:
+	Cube( const Vec3& pos,const Vec3& scale,int xmMatSize = -1 )
 		:
 		pos( pos ),
-		scale( scale )
-	{}
+		scale( scale ),
+		matSize( xmMatSize )
+	{
+		TryAllocMat();
+	}
+	Cube( const Cube& rhs )
+		:
+		Cube( rhs.pos,rhs.scale,rhs.matSize )
+	{
+		*this = rhs;
+	}
+	Cube& operator=( const Cube& rhs )
+	{
+		pos = rhs.pos;
+		scale = rhs.scale;
+		matSize = rhs.matSize;
+		TryAllocMat();
+
+		return( *this );
+	}
+	~Cube()
+	{
+		FreeMats();
+	}
+
+	void TryAllocMat()
+	{
+		FreeMats();
+		if( matSize > 0 )
+		{
+			for( int i = 0; i < int( MatType::Size ); ++i )
+			{
+				mats.emplace_back( ( int* )( malloc( matSize ) ) );
+			}
+		}
+	}
+
+	void FreeMats()
+	{
+		for( auto& mat : mats )
+		{
+			delete mat;
+		}
+		mats.clear();
+	}
 
 	bool IsOverlappingWith( const Cube& other ) const
 	{
@@ -54,5 +110,7 @@ public:
 	
 	Vec3 pos;
 	Vec3 scale;
-	XMMATRIX mat;
+	// int* mat = nullptr;
+	std::vector<int*> mats;
+	int matSize;
 };

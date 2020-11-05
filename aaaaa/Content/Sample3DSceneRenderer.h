@@ -35,8 +35,10 @@ namespace aaaaa
 		void Rotate(float radians);
 
 		void GenerateRandCube();
-		void GenerateCube( const Vec3& pos,const Vec3& scale,
-			const std::vector<float>& colors );
+		void GenerateCube( const Vec3& pos,const Vec3& scale );
+		void GenCubeModel();
+		// Make sure to delete me after use :)
+		int* CombineMats( const std::vector<int*>& mats ) const;
 	private:
 		// Constant buffers must be 256-byte aligned.
 		static const UINT c_alignedConstantBufferSize = (sizeof(ModelViewProjectionConstantBuffer) + 255) & ~255;
