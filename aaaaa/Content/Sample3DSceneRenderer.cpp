@@ -186,24 +186,31 @@ void Sample3DSceneRenderer::Update( DX::StepTimer const& timer )
 			// Rotate the cube a small amount.
 			// m_angle += static_cast< float >( timer.GetElapsedSeconds() ) * m_radiansPerSecond;
 			const auto rotAmount = static_cast<float>( timer.GetElapsedSeconds() ) * m_radiansPerSecond;
-			if( rotMode == 0 ) xAng += rotAmount;
-			else if( rotMode == 1 ) yAng += rotAmount;
-			else if( rotMode == 2 ) zAng += rotAmount;
-			else if( rotMode == 3 )
-			{
-				xAng += rotAmount;
-				yAng += rotAmount;
-			}
-			else if( rotMode == 4 )
-			{
-				yAng += rotAmount;
-				zAng += rotAmount;
-			}
-			else
-			{
-				xAng += rotAmount;
-				zAng += rotAmount;
-			}
+			// if( rotMode == 0 ) xAng += rotAmount;
+			// else if( rotMode == 1 ) yAng += rotAmount;
+			// else if( rotMode == 2 ) zAng += rotAmount;
+			// else if( rotMode == 3 )
+			// {
+			// 	xAng += rotAmount;
+			// 	yAng += rotAmount;
+			// }
+			// else if( rotMode == 4 )
+			// {
+			// 	yAng += rotAmount;
+			// 	zAng += rotAmount;
+			// }
+			// else
+			// {
+			// 	xAng += rotAmount;
+			// 	zAng += rotAmount;
+			// }
+
+			const auto dt = float( timer.GetElapsedSeconds() );
+
+			if( AescKbd::KeyIsPressed( AescKbd::Key::Up ) ) xAng -= camRotSpd * dt;
+			if( AescKbd::KeyIsPressed( AescKbd::Key::Down ) ) xAng += camRotSpd * dt;
+			if( AescKbd::KeyIsPressed( AescKbd::Key::Left ) ) yAng -= camRotSpd * dt;
+			if( AescKbd::KeyIsPressed( AescKbd::Key::Right ) ) yAng += camRotSpd * dt;
 
 			Rotate( m_angle );
 
@@ -327,10 +334,10 @@ void aaaaa::Sample3DSceneRenderer::GenerateCube( const Vec3& pos,const Vec3& sca
 	cubes.emplace_back( Cube{ pos,scale } );
 	Cube& tempCube = cubes.back();
 	
-	Microsoft::WRL::ComPtr<ID3D12Resource>& m_vertexBuffer = tempCube.vertexBuffer;
-	Microsoft::WRL::ComPtr<ID3D12Resource>& m_indexBuffer = tempCube.indexBuffer;
-	D3D12_VERTEX_BUFFER_VIEW& m_vertexBufferView = tempCube.vertexBufferView;
-	D3D12_INDEX_BUFFER_VIEW& m_indexBufferView = tempCube.indexBufferView;
+	// Microsoft::WRL::ComPtr<ID3D12Resource>& m_vertexBuffer = vertexBuffer;
+	// Microsoft::WRL::ComPtr<ID3D12Resource>& m_indexBuffer = indexBuffer;
+	// D3D12_VERTEX_BUFFER_VIEW& m_vertexBufferView = vertexBufferView;
+	// D3D12_INDEX_BUFFER_VIEW& m_indexBufferView = indexBufferView;
 
 	// Cube vertices. Each vertex has a position and a color.
 	VertexPositionColor cubeVertices[] =
@@ -648,17 +655,17 @@ bool Sample3DSceneRenderer::Render()
 
 		m_commandList->OMSetRenderTargets( 1,&renderTargetView,false,&depthStencilView );
 
-		// m_commandList->IASetPrimitiveTopology( D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST );
-		// m_commandList->IASetVertexBuffers( 0,1,&m_vertexBufferView );
-		// m_commandList->IASetIndexBuffer( &m_indexBufferView );
-		// m_commandList->DrawIndexedInstanced( 36,1,0,0,0 );
-		for( const auto& cube : cubes )
-		{
-			m_commandList->IASetPrimitiveTopology( D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST );
-			m_commandList->IASetVertexBuffers( 0,1,&cube.vertexBufferView );
-			m_commandList->IASetIndexBuffer( &cube.indexBufferView );
-			m_commandList->DrawIndexedInstanced( 36,1,0,0,0 );
-		}
+		m_commandList->IASetPrimitiveTopology( D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST );
+		m_commandList->IASetVertexBuffers( 0,1,&m_vertexBufferView );
+		m_commandList->IASetIndexBuffer( &m_indexBufferView );
+		m_commandList->DrawIndexedInstanced( 36,1,0,0,0 );
+		// for( const auto& cube : cubes )
+		// {
+		// 	m_commandList->IASetPrimitiveTopology( D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST );
+		// 	m_commandList->IASetVertexBuffers( 0,1,&cube.vertexBufferView );
+		// 	m_commandList->IASetIndexBuffer( &cube.indexBufferView );
+		// 	m_commandList->DrawIndexedInstanced( 36,1,0,0,0 );
+		// }
 
 		// Indicate that the render target will now be used to present when the command list is done executing.
 		CD3DX12_RESOURCE_BARRIER presentResourceBarrier =

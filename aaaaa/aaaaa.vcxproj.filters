@@ -90,6 +90,9 @@
     <ClInclude Include="Range.h">
       <Filter>uhh</Filter>
     </ClInclude>
+    <ClInclude Include="AescKbd.h">
+      <Filter>uhh</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <AppxManifest Include="Package.appxmanifest" />

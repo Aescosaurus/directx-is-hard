@@ -47,11 +47,12 @@ private:
 		return( pos.z - scale.z / 2.0f );
 	}
 public:
-	Microsoft::WRL::ComPtr<ID3D12Resource> vertexBuffer;
-	Microsoft::WRL::ComPtr<ID3D12Resource> indexBuffer;
-	D3D12_VERTEX_BUFFER_VIEW vertexBufferView;
-	D3D12_INDEX_BUFFER_VIEW indexBufferView;
+	// Microsoft::WRL::ComPtr<ID3D12Resource> vertexBuffer;
+	// Microsoft::WRL::ComPtr<ID3D12Resource> indexBuffer;
+	// D3D12_VERTEX_BUFFER_VIEW vertexBufferView;
+	// D3D12_INDEX_BUFFER_VIEW indexBufferView;
 	
 	Vec3 pos;
 	Vec3 scale;
+	XMMATRIX mat;
 };
