@@ -125,7 +125,7 @@ void Sample3DSceneRenderer::CreateDeviceDependentResources()
 
 		// GenerateRandCube();
 
-		GenerateCube( Vec3::Zero(),Vec3{ 1.0f,0.5f,1.0f } );
+		GenerateCube( Vec3{ 0.0f,1.0f,0.0f },Vec3{ 1.0f,0.5f,1.0f } );
 
 		// GenerateCube( Vec3::Zero(),Vec3::One() );
 	} );
@@ -341,16 +341,22 @@ void aaaaa::Sample3DSceneRenderer::GenerateCube( const Vec3& pos,const Vec3& sca
 
 	// this si so dumbbb
 	*( ( XMMATRIX* )( cubes.back().mats[int( Cube::MatType::Identity )] ) ) = XMMatrixIdentity();
+	*( ( XMMATRIX* )( cubes.back().mats[int( Cube::MatType::Scale )] ) ) = XMMatrixIdentity();
+	*( ( XMMATRIX* )( cubes.back().mats[int( Cube::MatType::Rotation )] ) ) = XMMatrixIdentity();
+	*( ( XMMATRIX* )( cubes.back().mats[int( Cube::MatType::Orbit )] ) ) = XMMatrixIdentity();
+	*( ( XMMATRIX* )( cubes.back().mats[int( Cube::MatType::Translate )] ) ) = XMMatrixIdentity();
+
+	*( ( XMMATRIX* )( cubes.back().mats[int( Cube::MatType::Identity )] ) ) = XMMatrixIdentity();
 	*( ( XMMATRIX* )( cubes.back().mats[int( Cube::MatType::Scale )] ) ) = XMMatrixScaling( scale.x,scale.y,scale.z );
 	*( ( XMMATRIX* )( cubes.back().mats[int( Cube::MatType::Rotation )] ) ) = XMMatrixIdentity();
 	*( ( XMMATRIX* )( cubes.back().mats[int( Cube::MatType::Orbit )] ) ) = XMMatrixIdentity();
-	*( ( XMMATRIX* )( cubes.back().mats[int( Cube::MatType::Translate )] ) ) = XMMatrixTranslation( pos.x,pos.y,pos.z );
+	// *( ( XMMATRIX* )( cubes.back().mats[int( Cube::MatType::Translate )] ) ) = XMMatrixTranslation( pos.x,pos.y,pos.z );
 
-	auto& test = cubes.back().mats;
-
-	int* completeMat = CombineMats( cubes.back().mats );
-	auto temp = ( XMMATRIX* )( completeMat );
-	delete completeMat;
+	// auto& test = cubes.back().mats;
+	// 
+	// int* completeMat = CombineMats( cubes.back().mats );
+	// auto temp = ( XMMATRIX* )( completeMat );
+	// delete completeMat;
 }
 
 void aaaaa::Sample3DSceneRenderer::GenCubeModel()
@@ -631,8 +637,11 @@ int* aaaaa::Sample3DSceneRenderer::CombineMats( const std::vector<int*>& mats ) 
 	XMMATRIX& buildupMat = ( *( ( XMMATRIX* )( result ) ) );
 	buildupMat = XMMatrixIdentity();
 
-	for( const int* mat : mats )
+	// for( const int* mat : mats )
+	// for( int i = 0; i < int( mats.size() ); ++i )
+	for( int i = int( mats.size() ) - 1; i > 0; --i )
 	{
+		int* mat = mats[i];
 		const XMMATRIX& curMat = ( *( ( XMMATRIX* )( mat ) ) );
 		buildupMat *= curMat;
 		// buildupMat = XMMatrixMultiply( buildupMat,curMat );
@@ -678,6 +687,7 @@ bool Sample3DSceneRenderer::Render()
 	for( const auto& cube : cubes )
 	{
 		int* completeMat = CombineMats( cube.mats );
+		// auto test = *( ( XMMATRIX* )( completeMat ) );
 		XMStoreFloat4x4( &m_constantBufferData.model,*( ( XMMATRIX* )( completeMat ) ) );
 		delete completeMat;
 
